@@ -38,7 +38,7 @@ import 'src/clock.dart';
 class FacebookLogin {
   static const channel = MethodChannel('com.roughike/flutter_facebook_login');
 
-  FacebookLoginBehavior _loginBehavior =
+  FacebookLoginBehavior? _loginBehavior =
       FacebookLoginBehavior.nativeWithFallback;
 
   /// Controls how the login dialog should be presented.
@@ -50,7 +50,7 @@ class FacebookLogin {
   /// is taken into account just before the login dialog is about to show.
   ///
   /// Ignored on iOS, as it's not supported by the iOS Facebook Login SDK anymore.
-  set loginBehavior(FacebookLoginBehavior behavior) {
+  set loginBehavior(FacebookLoginBehavior? behavior) {
     assert(behavior != null, 'The login behavior cannot be null.');
     _loginBehavior = behavior;
   }
@@ -82,8 +82,8 @@ class FacebookLogin {
   ///
   /// NOTE: This might return an access token that has expired. If you need to be
   /// sure that the token is still valid, call [isValid] on the access token.
-  Future<FacebookAccessToken> get currentAccessToken async {
-    final Map<dynamic, dynamic> accessToken =
+  Future<FacebookAccessToken?> get currentAccessToken async {
+    final Map<dynamic, dynamic>? accessToken =
         await channel.invokeMethod('getCurrentAccessToken');
 
     if (accessToken == null) {
@@ -138,6 +138,8 @@ class FacebookLogin {
         return 'webOnly';
       case FacebookLoginBehavior.webViewOnly:
         return 'webViewOnly';
+      default:
+        // do nothing
     }
 
     throw StateError('Invalid login behavior.');
@@ -212,13 +214,13 @@ class FacebookLoginResult {
   ///
   /// Only available when the [status] equals [FacebookLoginStatus.loggedIn],
   /// otherwise null.
-  final FacebookAccessToken accessToken;
+  final FacebookAccessToken? accessToken;
 
   /// The error message when the log in flow completed with an error.
   ///
   /// Only available when the [status] equals [FacebookLoginStatus.error],
   /// otherwise null.
-  final String errorMessage;
+  final String? errorMessage;
 
   FacebookLoginResult._(Map<String, dynamic> map)
       : status = _parseStatus(map['status']),

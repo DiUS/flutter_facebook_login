@@ -41,10 +41,11 @@ void main() {
     };
 
     final log = <MethodCall>[];
-    FacebookLogin sut;
+    late FacebookLogin sut;
 
-    void setMethodCallResponse(Map<String, dynamic> response) {
-      channel.setMockMethodCallHandler((methodCall) {
+    void setMethodCallResponse(Map<String, dynamic>? response) {
+      TestDefaultBinaryMessengerBinding.instance?.defaultBinaryMessenger
+      .setMockMethodCallHandler(channel, (methodCall) {
         log.add(methodCall);
         return Future.value(response);
       });
@@ -76,6 +77,7 @@ void main() {
     }
 
     setUp(() {
+      TestWidgetsFlutterBinding.ensureInitialized();
       sut = FacebookLogin();
       log.clear();
     });
@@ -94,7 +96,7 @@ void main() {
       setMethodCallResponse(kLoggedInResponse);
 
       final result = await sut.logIn([]);
-      final map = result.accessToken.toMap();
+      final map = result.accessToken!.toMap();
 
       expect(
         map,
@@ -187,7 +189,7 @@ void main() {
       ]);
 
       expect(result.status, FacebookLoginStatus.loggedIn);
-      expectAccessTokenParsedCorrectly(result.accessToken);
+      expectAccessTokenParsedCorrectly(result.accessToken!);
 
       expect(
         log,
@@ -279,7 +281,7 @@ void main() {
       setMethodCallResponse(kAccessToken);
 
       final accessToken = await sut.currentAccessToken;
-      expectAccessTokenParsedCorrectly(accessToken);
+      expectAccessTokenParsedCorrectly(accessToken!);
     });
 
     test('FacebookAccessToken#isValid() - when not expired, returns true',
@@ -289,7 +291,7 @@ void main() {
       Clock.dateTimeResolver = () => beforeExpiry;
 
       final accessToken = await sut.currentAccessToken;
-      expect(accessToken.isValid(), isTrue);
+      expect(accessToken!.isValid(), isTrue);
     });
 
     test('FacebookAccessToken#isValid() - when expired, returns false',
@@ -299,7 +301,7 @@ void main() {
       Clock.dateTimeResolver = () => afterExpiry;
 
       final accessToken = await sut.currentAccessToken;
-      expect(accessToken.isValid(), isFalse);
+      expect(accessToken!.isValid(), isFalse);
     });
   });
 }
